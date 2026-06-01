@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage 
+    SchemaVersion="1.0" 
+    AutodeskProduct="3ds Max" 
+    ProductType="Application" 
+    Name="ForzaTech Importer for 3ds Max 2025"
+    AppVersion="2.7.0"
+    Author="Autodesk, Inc." 
+    ProductCode="*"
+    UpgradeCode="{A70B7A0C-852D-4721-94AC-A61EDB835B88}">
+    <CompanyDetails Name="Autodesk, Inc." Url="https://www.autodesk.com/" />
+
+    <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2025" SeriesMax="2025" />
+
+    <Components Description="plugins parts">
+        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2025" SeriesMax="2025" />
+        <ComponentEntry ModuleName="./Contents/bin/forzatech_max.dli" />
+    </Components>
+
+</ApplicationPackage>

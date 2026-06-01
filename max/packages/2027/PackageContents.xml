@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage 
+    SchemaVersion="1.0" 
+    AutodeskProduct="3ds Max" 
+    ProductType="Application" 
+    Name="ForzaTech Importer for 3ds Max 2027"
+    AppVersion="2.7.0"
+    Author="Autodesk, Inc." 
+    ProductCode="*"
+    UpgradeCode="{582D0195-8562-4C77-B627-A5A89B8CBA2F}">
+    <CompanyDetails Name="Autodesk, Inc." Url="https://www.autodesk.com/" />
+
+    <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2027" SeriesMax="2027" />
+
+    <Components Description="plugins parts">
+        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2027" SeriesMax="2027" />
+        <ComponentEntry ModuleName="./Contents/bin/forzatech_max.dli" />
+    </Components>
+
+</ApplicationPackage>

@@ -1,0 +1,51 @@
+<RCC>
+    <qresource prefix="/assets">
+        <file>custom.qss</file>
+        <file>about.md</file>
+    </qresource>
+    <qresource prefix="/logos">
+        <file>svg/Button_Built_with_Qt_Black_RGB.svg</file>
+        <file>svg/logo_forza_4a9f76e71d.svg</file>
+        <file>svg/logo_forza_text.svg</file>
+        <file>svg/logo_horizon_white_f308abcb59.svg</file>
+        <file>svg/logo_motorsport_white_a15ae354d6.svg</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>svg/layers-fill.svg</file>
+        <file>svg/layers-half.svg</file>
+        <file>svg/material.svg</file>
+        <file>svg/stack.svg</file>
+        <file>svg/texture.svg</file>
+        <file>svg/arrow-down-right-square.svg</file>
+        <file>svg/arrow-down-right-square-fill.svg</file>
+        <file>svg/arrow-up-left-square.svg</file>
+        <file>svg/arrow-up-left-square-fill.svg</file>
+        <file>svg/code-slash.svg</file>
+        <file>svg/server.svg</file>
+        <file>svg/sliders.svg</file>
+        <file>svg/snow.svg</file>
+        <file>svg/keyboard_arrow_right.svg</file>
+        <file>svg/close.svg</file>
+        <file>svg/keyboard_arrow_down.svg</file>
+        <file>svg/keyboard_arrow_up.svg</file>
+        <file>svg/timeline.svg</file>
+        <file>svg/line.svg</file>
+        <file>svg/bundle.svg</file>
+        <file>svg/joint.svg</file>
+        <file>svg/skeleton.svg</file>
+        <file>svg/upgrade.svg</file>
+        <file>svg/animation.svg</file>
+        <file>svg/circle.svg</file>
+        <file>svg/image.svg</file>
+        <file>svg/offline_bolt.svg</file>
+        <file>svg/workspaces.svg</file>
+        <file>svg/animated.svg</file>
+        <file>svg/error.svg</file>
+        <file>svg/warning.svg</file>
+        <file>svg/database-fill.svg</file>
+        <file>svg/database-fill-check.svg</file>
+        <file>svg/database-fill-exclamation.svg</file>
+        <file>svg/done_24dp_000000.svg</file>
+        <file>svg/filter_list_24dp_FFFFFF.svg</file>
+    </qresource>
+</RCC>
