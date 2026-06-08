@@ -2182,29 +2182,27 @@ void FMMainWindow::setModel(const std::string& path)
                         position += DCCManager::GetContainerDirection(model->bone_name);
 
                         //{ "tireL", "tireL", "tireL", "tireL" };     =  previous
-                        //{ "tireL", "tireL", "tireR", "tireR" };     =  current
-                        //{ "tireLF", "tireLR", "tireRF", "tireRR" }; =  supposed/current
+                        //{ "tireL", "tireL", "tireR", "tireR" };     =  previous/current
+                        //{ "tireLF", "tireLR", "tireRF", "tireRR" }; =  current/fixed
 
                         for (const auto& [key, data] : m_tires)
                         {
                             std::smatch match_tire{};
                             std::string regex = (m_tires.size() <= 2) ? std::string(position.begin(), position.end() - 1) : position;
 
-                            std::regex_search(key, match_tire, std::regex(regex, std::regex::icase));
+                            QString scheme = QString("%0/%1/%2").arg(upgrade_item->data(0, Qt::DisplayRole).toString(), root_item->data(0, Qt::DisplayRole).toString(), tire_model->type.c_str());
 
-                            if (!match_tire.empty())
+                            auto materials = HandleShaders(tire_model, data, scheme);
+
+                            switch (static_cast<uint32_t>(m_tires.size()))
                             {
-                                std::string tire_path = "game:\\media\\cars\\_library\\scene\\tires\\";
-                                tire_path += m_records->TireModelName;
-                                tire_path += std::string(std::string("\\") + position + std::string(key.begin() + regex.size(), key.end()));
+                            case 0x01:
+                            {
+                                tire_model->path = "game:\\media\\cars\\_library\\scene\\tires\\";
+                                tire_model->path += m_records->TireModelName;
+                                tire_model->path += std::string(std::string("\\") + position + std::string(key.begin() + regex.size(), key.end()));
 
-                                tire_model->path = tire_path;
-
-                                QString scheme = QString("%0/%1/%2").arg(upgrade_item->data(0, Qt::DisplayRole).toString(), root_item->data(0, Qt::DisplayRole).toString(), tire_model->type.c_str());
-
-                                auto materials = HandleShaders(tire_model, data, scheme);
-
-                                if (std::find_if(list_items.cbegin(), list_items.cend(), [&](const auto& pitem) { return pitem.model->path == tire_path; }) == list_items.cend())
+                                if (std::find_if(list_items.begin(), list_items.end(), [&](const auto& pitem) { return pitem.model->path == tire_model->path; }) == std::end(list_items))
                                 {
                                     item->setText(2, tire_model->path.c_str());
                                     item->setToolTip(0, tire_model->path.c_str());
@@ -2212,12 +2210,47 @@ void FMMainWindow::setModel(const std::string& path)
 
                                     upgrade_tire->addChild(item);
 
+                                    auto materials = HandleShaders(tire_model, data, scheme);
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
                                     list_items.emplace_back(item, 8, tire_model, data, materials, scheme.toStdString());
 #else
                                     list_items.push_back({ item, 8, tire_model, data, materials, scheme.toStdString() });
 #endif
                                 }
+                                break;
+                            }
+                            case 0x02:
+                            case 0x04:
+                            {
+                                if (std::regex_search(key, match_tire, std::regex(regex, std::regex::icase)))
+                                {
+                                    tire_model->path = "game:\\media\\cars\\_library\\scene\\tires\\";
+                                    tire_model->path += m_records->TireModelName;
+                                    tire_model->path += std::string(std::string("\\") + position + std::string(key.begin() + regex.size(), key.end()));
+
+                                    if (std::find_if(list_items.begin(), list_items.end(), [&](const auto& pitem) { return pitem.model->path == tire_model->path; }) == std::end(list_items))
+                                    {
+                                        item->setText(2, tire_model->path.c_str());
+                                        item->setToolTip(0, tire_model->path.c_str());
+                                        item->setToolTip(2, tire_model->path.c_str());
+
+                                        upgrade_tire->addChild(item);
+
+                                        auto materials = HandleShaders(tire_model, data, scheme);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                                        list_items.emplace_back(item, 8, tire_model, data, materials, scheme.toStdString());
+#else
+                                        list_items.push_back({ item, 8, tire_model, data, materials, scheme.toStdString() });
+#endif
+                                    }
+                                }
+                                break;
+                            }
+                            default:
+                                printf("Warning: Unsupported number of tire entries found: 0x%02X \n", static_cast<uint32_t>(m_tires.size()));
+                                break;
                             }
                         }
                     }
