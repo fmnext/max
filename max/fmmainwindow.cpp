@@ -1633,6 +1633,8 @@ void FMMainWindow::setModel(const std::string& path)
                     }
                 }
             }
+
+            tires_container.release();
         }
 
         // media/_library and media/cars/_library
@@ -1714,19 +1716,16 @@ void FMMainWindow::setModel(const std::string& path)
         {
             if (!m_records->Thumbnail.empty())
             {
-                for (auto& [name, path] : m_game->GetThumbnail(m_records->Thumbnail))
+                for (const auto& path : m_game->GetResourceContainer(m_records->Thumbnail))
                 {
-                    std::smatch match_big{};
-                    std::regex_search(name, match_big, std::regex("_Big.swatchbin", std::regex::icase));
-
-                    if (std::filesystem::exists(path) && !match_big.empty())
+                    for (const auto& name : fmnext::GameResolver::GetThumbnailNames(m_records->Thumbnail))
                     {
                         auto thumbnail_container = fmnext::ContainerReader(path.string());
 
                         std::vector<char> thumb_blob{};
                         if (thumbnail_container.findName(name, thumb_blob)) {
                             auto thumb = fmnext::BundleReader(thumb_blob);
-                            if (thumb.Init())
+                            if (thumb.Init() && m_thumbnail == nullptr)
                             {
                                 m_thumbnail = std::make_unique<fmnext::BundleReader::BundleData>(thumb.bundle);
 
@@ -1744,37 +1743,9 @@ void FMMainWindow::setModel(const std::string& path)
                             }
                         }
 
-                        continue;
-                    }
-
-                    if (std::filesystem::exists(path))
-                    {
-                        auto thumbnail_container = fmnext::ContainerReader(path.string());
-
-                        std::vector<char> thumb_blob{};
-                        if (thumbnail_container.findName(name, thumb_blob)) {
-                            auto thumb = fmnext::BundleReader(thumb_blob);
-                            if (thumb.Init())
-                            {
-                                m_thumbnail = std::make_unique<fmnext::BundleReader::BundleData>(thumb.bundle);
-
-                                auto texture_resolver = fmnext::TextureResolver(thumb.bundle);
-                                const DirectX::Blob& blob_png = texture_resolver.SaveToPNGMemory();
-
-                                QPixmap default_thumb;
-                                default_thumb.loadFromData(static_cast<unsigned char*>(blob_png.GetBufferPointer()), static_cast<uint32_t>(blob_png.GetBufferSize()));
-
-                                QPixmap scaled_thumb = default_thumb.scaled(QSize(FMQtWindow::dpiScale(200), FMQtWindow::dpiScale(200)), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-                                scene_items[1]->setText(1, "Image");
-                                scene_items[1]->setData(2, Qt::DecorationRole, scaled_thumb);
-                                scene_items[1]->setToolTip(2, m_records->Thumbnail.c_str());
-                            }
-                        }
+                        thumbnail_container.release();
                     }
                 }
-
-                /**/
             }
 
             root_items[6]->setText(2, "Available");
