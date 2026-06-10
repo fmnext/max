@@ -3230,6 +3230,23 @@ void FMMainWindow::exportManufacturerColors(const QString& path)
                 QJsonObject color_object;
 
                 color_object.insert("Index_Mask", QJsonValue::fromVariant(QVariant(colors->material_index_mask.value())));
+
+                if (colors->masks.has_value())
+                {
+                    QJsonArray mask_array{};
+
+                    for (const auto& mask : colors->masks.value())
+                    {
+                        mask_array.push_back(QString(mask.c_str()));
+                    }
+
+                    color_object.insert("Masks", mask_array);
+                }
+                else
+                {
+                    color_object.insert("Masks", QJsonValue(QJsonValue::Null));
+                }
+
                 color_object.insert("Path", QString(colors->path.c_str()));
                 color_object.insert("Preview_Color", QJsonArray({ colors->preview_color.x, colors->preview_color.y, colors->preview_color.z }));
 
