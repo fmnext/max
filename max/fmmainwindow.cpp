@@ -3125,6 +3125,13 @@ void FMMainWindow::exportMaterialData(int bundle_index, const QString& path)
     QJsonArray document_entries{};
     QJsonObject root_json_object{};
 
+    QJsonObject metadata_object;
+    metadata_object.insert("version", 1);
+    metadata_object.insert("type", "MaterialData");
+    metadata_object.insert("generator", "ForzaTech Importer for Autodesk 3ds Max");
+
+    root_json_object.insert("metadata", metadata_object);
+
     for (auto it = list_items[bundle_index].bundle->Meshes.begin(); it != list_items[bundle_index].bundle->Meshes.end(); ++it)
     {
         auto materials = list_items[bundle_index];
