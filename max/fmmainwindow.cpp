@@ -3201,7 +3201,7 @@ void FMMainWindow::exportManufacturerColors(const QString& path)
     QJsonObject metadata_object;
     metadata_object.insert("version", 1);
     metadata_object.insert("type", "ManufacturerColors");
-    metadata_object.insert("generator", "ForzaTech for Autodesk 3ds Max");
+    metadata_object.insert("generator", "ForzaTech Importer for Autodesk 3ds Max");
 
     root_json_object.insert("metadata", metadata_object);
 
