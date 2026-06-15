@@ -68,12 +68,12 @@ void FMOptionsDialog::importData()
             DCCManager::LoadSkeleton(bundle->Skeleton);
         }
 
-        for (auto& mesh : resolver.GetMeshes())
+        for (const auto& mesh : resolver.GetMeshes())
         {
             INode* mesh_obj = nullptr;
             Mtl* material_obj = nullptr;
 
-            std::string mesh_name;
+            std::string mesh_name(mesh.name);
 
             auto material = std::find_if(data.bundle.MaterialInstanceBundles.begin(), data.bundle.MaterialInstanceBundles.end(), [&](auto& mtl) {
                 return std::any_cast<int32_t>(mtl.metadata["Id"]) == mesh.material_index;
@@ -81,7 +81,6 @@ void FMOptionsDialog::importData()
 
             if (material != std::end(data.bundle.MaterialInstanceBundles))
             {
-                mesh_name += mesh.name;
                 mesh_name += "_";
                 mesh_name += std::any_cast<std::string>(material->metadata["Name"]);
 
@@ -91,7 +90,7 @@ void FMOptionsDialog::importData()
                 }
             }
 
-            mesh_obj = DCCManager::createMesh(mesh.vertices, mesh.indices, mesh.normals, mesh.uvs, mesh_name, material_obj, geometryType->currentIndex());
+            mesh_obj = DCCManager::createMesh(&mesh, mesh_name, material_obj, geometryType->currentIndex());
             DCCManager::setNodeTransformation(mesh_obj, mesh.matrix);
         }
     }
