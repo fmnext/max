@@ -5,6 +5,7 @@ FMFileDownloader::FMFileDownloader(QUrl dataUrl, QObject *parent) : QObject(pare
     connect(&m_WebCtrl, SIGNAL(finished(QNetworkReply*)), this, SLOT(fileDownloaded(QNetworkReply*)));
 
     QNetworkRequest request(dataUrl);
+    request.setRawHeader(QByteArray("x-api-key"), QByteArray("nDEhjxMAk19FSrA3p8wcB8unqQI8v9Q9b7UrbU11"));
     m_WebCtrl.get(request);
 }
 
