@@ -1408,7 +1408,7 @@ FMMainWindow::FMMainWindow(QWidget* parent)
             {
                 QJsonObject json_obj = QJsonDocument::fromJson(byte_data).object();
                 QString json_version = json_obj["tag_name"].toString();
-                int json_ordinal = QVariant::fromValue(QString(json_version).replace(QRegularExpression("[\s.a-zA-Z]+", QRegularExpression::CaseInsensitiveOption), "")).toInt();
+                int json_ordinal = QVariant::fromValue(QString(json_version).replace(QRegularExpression("[\\s.a-zA-Z]+", QRegularExpression::CaseInsensitiveOption), "")).toInt();
 
                 if (json_ordinal > FT_MAX_VERSION_NUMBER)
                 {
