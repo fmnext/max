@@ -4,7 +4,7 @@
     AutodeskProduct="3ds Max" 
     ProductType="Application" 
     Name="ForzaTech Importer for 3ds Max 2026"
-    AppVersion="2.7.0"
+    AppVersion="2.7.1"
     Author="Autodesk, Inc." 
     ProductCode="*"
     UpgradeCode="{582D0195-8562-4C77-B627-A5A89B8CBA2F}">
