@@ -46,13 +46,13 @@
 
 #define FT_MAX_MAJOR_VERSION    2
 #define FT_MAX_MINOR_VERSION    7
-#define FT_MAX_PATCH_VERSION    0
+#define FT_MAX_PATCH_VERSION    1
 #define FT_MAX_BUILD_NUMBER     0
-#define FT_MAX_VERSION_STR      "2.7.0"
-#define FT_MAX_VERSION_NUMBER   270
+#define FT_MAX_VERSION_STR      "2.7.1"
+#define FT_MAX_VERSION_NUMBER   271
 #define FT_MAX_SCM_BRANCH       "3ds Max"
 #define FT_MAX_SCM_TAGS         "release version-2"
-#define FT_MAX_SCM_DATETIME     "2026-05-30T00:00:00.000Z"
+#define FT_MAX_SCM_DATETIME     "2026-06-30T00:00:00.000Z"
 
 namespace fmnext
 {
@@ -234,7 +234,7 @@ public:
 	* There is a issue that rotates 90.0 all meshes on X axis, need to investigate.
 	*/
 
-	static INode* createMesh(const std::vector<DirectX::XMFLOAT3>& vertices, const std::vector<uint32_t>& indices, const std::vector<DirectX::XMFLOAT3>& normals, const std::vector<std::vector<DirectX::XMFLOAT2>>& uvs, const std::string& mMeshName, Mtl* material, bool useQuads)
+	static INode* createMesh1(const std::vector<DirectX::XMFLOAT3>& vertices, const std::vector<uint32_t>& indices, const std::vector<DirectX::XMFLOAT3>& normals, const std::vector<std::vector<DirectX::XMFLOAT2>>& uvs, const std::string& mMeshName, Mtl* material, bool useQuads)
 	{
 		PolyObject* pObj = CreateEditablePolyObject();
 		MNMesh* mesh = &pObj->GetMesh();
@@ -374,6 +374,193 @@ public:
 				for (int i = 0; i < face->deg && useQuads; ++i)
 				{
 					mapFace.tv[i] = indices[inc + i];
+				}
+			}
+
+			//normalFace->MNDebugPrint(true);
+		}
+
+		normalSpec->SetAllExplicit(true);
+		normalSpec->BuildNormals();
+		normalSpec->CheckNormals();
+
+		mesh->buildNormals();
+		mesh->checkNormals(TRUE);
+		mesh->InvalidateGeomCache();
+		mesh->InvalidateTopoCache();
+
+		mesh->SetFlag(MN_MESH_FILLED_IN);
+
+		//pObj->PointsWereChanged();
+		pObj->SetChannelValidity(TOPO_CHAN_NUM, FOREVER);
+		pObj->SetChannelValidity(GEOM_CHAN_NUM, FOREVER);
+		pObj->NotifyDependents(FOREVER, PART_GEOM, REFMSG_CHANGE);
+
+		std::string updated_name = updateNodeName(mMeshName);
+
+		INode* node = GetCOREInterface()->CreateObjectNode(pObj);
+		node->SetName(fmnext::convertStdStringToWide(updated_name).c_str());
+
+		if (material != nullptr)
+		{
+			node->SetMtl(material);
+		}
+
+		node->InvalidateTM();
+		node->InvalidateWS();
+		node->ResetTransform(0, TRUE);
+
+		Matrix3 nodeTM;
+		//nodeTM.Invert();
+		nodeTM.NoRot();
+		nodeTM.NoTrans();
+		nodeTM.NoScale();
+
+		node->SetNodeTM(GetCOREInterface()->GetTime(), nodeTM);
+
+		return node;
+	}
+
+	static INode* createMesh(const fmnext::Mesh* pMesh, const std::string& mMeshName, Mtl* material, bool useQuads)
+	{
+		PolyObject* pObj = CreateEditablePolyObject();
+		MNMesh* mesh = &pObj->GetMesh();
+
+		int geometry = (useQuads) ? 4 : 3;
+		int numVertices = static_cast<int>(pMesh->vertices.size());
+		int numIndices = static_cast<int>(pMesh->indices.size());
+		int numPolygons = static_cast<int>(numIndices / geometry);
+
+		mesh->setNumVerts(numVertices);
+		mesh->setNumFaces(numPolygons);
+
+		for (int i = 0; i < numVertices; ++i)
+		{
+			mesh->v[i].p = Point3(pMesh->vertices[i].x, pMesh->vertices[i].z, pMesh->vertices[i].y); // Z-Up
+		}
+
+		for (int index = 0, inc = 0; index < numPolygons; index++, inc += geometry)
+		{
+			int v0 = pMesh->indices[inc + 0];
+			int v1 = pMesh->indices[inc + 1];
+			int v2 = pMesh->indices[inc + 2];
+			int v3 = (geometry == 4) ? pMesh->indices[inc + 3] : 0xffffffff;
+
+			MNFace* face = &mesh->f[index];
+
+			if (v3 == 0xffffffff)
+			{
+				face->SetDeg(3);
+				//face->MakePoly(3, nullptr);
+
+				face->vtx[0] = v0;
+				face->vtx[1] = v1;
+				face->vtx[2] = v2;
+			}
+			else
+			{
+				face->SetDeg(4);
+				//face->MakePoly(4, nullptr);
+
+				for (int i = 0; i < geometry; ++i)
+				{
+					face->vtx[i] = pMesh->indices[inc + i];
+				}
+			}
+
+			if (!useQuads)
+			{
+				face->vtx[0] = v0;
+				face->vtx[2] = v1;
+				face->vtx[1] = v2;
+			}
+
+			face->smGroup = 0;
+			face->material = 0;
+
+			//face->ClearFlag(MN_DEAD);
+		}
+
+
+		mesh->FillInMesh();
+		//mesh->buildNormals();
+
+		mesh->SpecifyNormals();
+		MNNormalSpec* normalSpec = mesh->GetSpecifiedNormals();
+		//normalSpec->SetParent(mesh);
+		//normalSpec->ClearAndFree();
+		normalSpec->SetNumFaces(numPolygons);
+		normalSpec->SetNumNormals(numVertices);
+
+		for (int i = 0; i < numVertices && !pMesh->normals.empty(); ++i)
+		{
+			normalSpec->Normal(i) = Point3(pMesh->normals[i].x, pMesh->normals[i].z, pMesh->normals[i].y); // Z-Up;
+			normalSpec->SetNormalExplicit(i, true);
+		}
+
+		mesh->SetMapNum(6);
+
+		for (int channel = 0; channel < 5 && !pMesh->uvs.empty(); ++channel)
+		{
+			int ch = channel + 1;
+			mesh->InitMap(ch);
+			MNMap* map = mesh->M(ch);
+
+			if (map) {
+				map->setNumVerts(numVertices);
+
+				for (int i = 0; i < numVertices; ++i)
+				{
+					map->v[i] = Point3(pMesh->uvs[channel][i].x, (1 - pMesh->uvs[channel][i].y), 0.0f);
+				}
+			}
+		}
+
+		for (int index = 0, inc = 0; index < numPolygons && !pMesh->normals.empty(); index++, inc += geometry)
+		{
+			MNFace* face = &mesh->f[index];
+			MNNormalFace* normalFace = &normalSpec->Face(index);
+
+			normalFace->SpecifyAll();
+			normalFace->SetDegree(face->deg);
+
+			if (!useQuads)
+			{
+				normalFace->SetNormalID(0, pMesh->indices[inc + 0]); // X
+				normalFace->SetSpecified(0, TRUE);
+
+				normalFace->SetNormalID(2, pMesh->indices[inc + 1]); // Z
+				normalFace->SetSpecified(2, TRUE);
+
+				normalFace->SetNormalID(1, pMesh->indices[inc + 2]); // Y
+				normalFace->SetSpecified(1, TRUE);
+			}
+
+			for (int i = 0; i < face->deg && useQuads; ++i)
+			{
+				normalFace->SetNormalID(i, pMesh->indices[inc + i]);
+				normalFace->SetSpecified(i, TRUE);
+			}
+
+			for (int channel = 0; channel < 4 && !pMesh->uvs.empty(); ++channel)
+			{
+				MNMap* uvMap = mesh->M(channel + 1);
+
+				uvMap->setNumFaces(numPolygons);
+				MNMapFace& mapFace = uvMap->f[index];
+
+				mapFace.MakePoly(face->deg, nullptr);
+
+				if (!useQuads)
+				{
+					mapFace.tv[0] = pMesh->indices[inc + 0];  // X
+					mapFace.tv[2] = pMesh->indices[inc + 1];  // Z
+					mapFace.tv[1] = pMesh->indices[inc + 2];  // Y
+				}
+
+				for (int i = 0; i < face->deg && useQuads; ++i)
+				{
+					mapFace.tv[i] = pMesh->indices[inc + i];
 				}
 			}
 
@@ -762,7 +949,7 @@ public:
 		return node;
 	}
 
-	static void setNodeTransformation(INode* node, DirectX::XMMATRIX& xmMatrix)
+	static void setNodeTransformation(INode* node, const DirectX::XMMATRIX& xmMatrix)
 	{
 		Matrix3 nodeTM = GetMatrix3(xmMatrix);
 		node->SetNodeTM(0, nodeTM);
