@@ -46,13 +46,13 @@
 
 #define FT_MAX_MAJOR_VERSION    2
 #define FT_MAX_MINOR_VERSION    7
-#define FT_MAX_PATCH_VERSION    0
+#define FT_MAX_PATCH_VERSION    1
 #define FT_MAX_BUILD_NUMBER     0
-#define FT_MAX_VERSION_STR      "2.7.0"
-#define FT_MAX_VERSION_NUMBER   270
+#define FT_MAX_VERSION_STR      "2.7.1"
+#define FT_MAX_VERSION_NUMBER   271
 #define FT_MAX_SCM_BRANCH       "3ds Max"
 #define FT_MAX_SCM_TAGS         "release version-2"
-#define FT_MAX_SCM_DATETIME     "2026-05-30T00:00:00.000Z"
+#define FT_MAX_SCM_DATETIME     "2026-06-30T00:00:00.000Z"
 
 namespace fmnext
 {
