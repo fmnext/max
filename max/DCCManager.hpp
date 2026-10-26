@@ -1133,8 +1133,8 @@ public:
 						granny_transform EvalResult{};
 						GrannyMakeIdentity(&EvalResult);
 
-						GrannyEvaluateCurveAtT(3, false, false, PositionCurve, true, Animation->Duration, CurrentTime, EvalResult.Position, GrannyCurveIdentityPosition);
-						GrannyEvaluateCurveAtT(4, false, false, OrientationCurve, true, Animation->Duration, CurrentTime, EvalResult.Orientation, GrannyCurveIdentityOrientation);
+						GrannyEvaluateCurveAtT(3, false, false, PositionCurve, false, Animation->Duration, CurrentTime, EvalResult.Position, GrannyCurveIdentityPosition);
+						GrannyEvaluateCurveAtT(4, false, false, OrientationCurve, false, Animation->Duration, CurrentTime, EvalResult.Orientation, GrannyCurveIdentityOrientation);
 
 						TimeValue keyFrame = GetCOREInterface()->GetTime() +  Integer(CurrentFrame).to_timevalue();
 
